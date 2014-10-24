@@ -19,6 +19,7 @@ public class Reservation extends Quote implements Serializable {
     	super(quote.getCarRenter(), quote.getStartDate(), quote.getEndDate(), 
     			quote.getRentalCompany(), quote.getCarType(), quote.getRentalPrice());
         this.carId = carId;
+        this.timeStamp = System.currentTimeMillis();
     }
     
     /******
@@ -27,6 +28,18 @@ public class Reservation extends Quote implements Serializable {
     
     public int getCarId() {
     	return carId;
+    }
+    
+    /**
+     * A time stamp set during Reservation creation, for synchronisation purposes.
+     */
+    private long timeStamp;
+    
+    /**
+     * @return This Reservation's time stamp.
+     */
+    public long getTimeStamp() {
+    	return this.timeStamp;
     }
     
     /*************
