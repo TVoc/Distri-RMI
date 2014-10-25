@@ -27,6 +27,9 @@ public class NamingService implements INamingService {
 	@Override
 	public ICarRentalCompany lookupCompany(String name) throws RemoteException,
 			CompanyNotFoundException, IllegalArgumentException {
+		if (name == null) {
+			throw new IllegalArgumentException("name was null");
+		}
 		ICarRentalCompany toReturn = null;
 		toReturn = this.getCompanies().get(name);
 		if (toReturn == null) {
@@ -38,12 +41,18 @@ public class NamingService implements INamingService {
 	@Override
 	public void register(ICarRentalCompany company) throws RemoteException,
 			IllegalArgumentException {
+		if (company == null) {
+			throw new IllegalArgumentException("company was null");
+		}
 		this.getCompanies().put(company.getName(), company);
 	}
 
 	@Override
 	public void unregister(String name) throws RemoteException,
 			IllegalArgumentException {
+		if (name == null) {
+			throw new IllegalArgumentException("name was null");
+		}
 		this.getCompanies().remove(name);
 	}
 

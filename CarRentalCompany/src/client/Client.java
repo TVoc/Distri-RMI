@@ -127,7 +127,7 @@ public class Client extends AbstractScriptedSimpleTest {
 	 */
 	@Override
 	protected List<Reservation> getReservationsBy(String clientName) throws Exception {
-		return this.getCompany().getReservationsBy(clientName);
+		return this.getCompany().getReservationsBy(clientName, System.currentTimeMillis());
 	}
 
 	/**
@@ -142,6 +142,6 @@ public class Client extends AbstractScriptedSimpleTest {
 	 */
 	@Override
 	protected int getNumberOfReservationsForCarType(String carType) throws Exception {
-		return this.getCompany().getNumberOfReservationsFor(carType);
+		return this.getCompany().getNumberOfReservationsFor(carType, System.currentTimeMillis());
 	}
 }
