@@ -35,5 +35,24 @@ public class MapMergerTest {
 		assertTrue(toMap.get("keke") == 1);
 		assertTrue(toMap.get("blabla") == 4);
 	}
+	
+
+	
+	@Test
+	public void findHighest() {
+		MapMerger<String> merger = new MapMerger<String>();
+		merger.merge(toMap, fromMap);
+		MapHighestFinder<String> finder = new MapHighestFinder<String>();
+		String highest = finder.findHighestIn(toMap);
+		assertEquals("haha", highest);
+	}
+	
+	@Test
+	public void findHighestNull() {
+		Map<String, Integer> empty = new HashMap<String, Integer>();
+		MapHighestFinder<String> finder = new MapHighestFinder<String>();
+		String highest = finder.findHighestIn(empty);
+		assertEquals(null, highest);
+	}
 
 }

@@ -90,6 +90,20 @@ public interface ICarRentalCompany extends Remote {
 	public abstract Map<String, Integer> getNumReservationsPerCustomer(long timeStamp) throws RemoteException;
 	
 	/**
+	 * Get the best client in this company.
+	 * 
+	 * @param timeStamp
+	 * 		Only reservations submitted no later than timeStamp are considered. This is for synchronisation
+	 * 		purposes.
+	 * @return
+	 * 		The client with the most reservations in this company. If there are no reservations at all,
+	 * 		null is returned.
+	 * @throws RemoteException
+	 * 		Something goes wrong during remote invocation
+	 */
+	public abstract String getBestCustomer(long timeStamp) throws RemoteException;
+	
+	/**
 	 * Each car type is associated with the number of reservations made for that car type.
 	 * 
 	 * @param timeStamp
@@ -101,5 +115,19 @@ public interface ICarRentalCompany extends Remote {
 	 * 		Something goes wrong during remote invocation
 	 */
 	public abstract Map<CarType, Integer> getNumReservationsPerCarType(long timeStamp) throws RemoteException;
+	
+	/**
+	 * Get the most popular car type in this company.
+	 * 
+	 * @param timeStamp
+	 * 		Only reservations submitted no later than timeStamp are considered. This is for
+	 * 		synchronisation purposes.
+	 * @return
+	 * 		The car type with the most reservations in this company. If there are no reservations at all,
+	 * 		null is returned.
+	 * @throws RemoteException
+	 * 		Something goes wrong during remote invocation
+	 */
+	public abstract CarType getMostPopularCarType(long timeStamp) throws RemoteException;
 
 }

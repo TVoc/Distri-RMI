@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import utilities.MapHighestFinder;
 import utilities.MapMerger;
 
 public class CarRentalCompany implements ICarRentalCompany {
@@ -221,6 +222,13 @@ public class CarRentalCompany implements ICarRentalCompany {
 		
 		return toReturn;
 	}
+	
+	@Override
+	public String getBestCustomer(long timeStamp) throws RemoteException {
+		Map<String, Integer> info = this.getNumReservationsPerCustomer(timeStamp);
+		MapHighestFinder<String> finder = new MapHighestFinder<String>();
+		return finder.findHighestIn(info);
+	}
 
 	@Override
 	public Map<CarType, Integer> getNumReservationsPerCarType(long timeStamp)
@@ -239,5 +247,12 @@ public class CarRentalCompany implements ICarRentalCompany {
 		}
 		
 		return toReturn;
+	}
+	
+	@Override
+	public CarType getMostPopularCarType(long timeStamp) throws RemoteException {
+		Map<CarType, Integer> info = this.getNumReservationsPerCarType(timeStamp);
+		MapHighestFinder<CarType> finder = new MapHighestFinder<CarType>();
+		return finder.findHighestIn(info);
 	}
 }
