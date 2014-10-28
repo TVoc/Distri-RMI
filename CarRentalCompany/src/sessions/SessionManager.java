@@ -121,7 +121,6 @@ public class SessionManager implements Runnable {
 					}
 				}
 			}
-			System.out.println("Number of sessions in session manager: " + this.getSessionList().size());
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
