@@ -21,6 +21,7 @@ public class ReservationSession implements IReservationSession {
 		this.clientName = clientName;
 		this.sessionManager = sessionManager;
 		this.quoteList = new ArrayList<Quote>();
+		this.timeStamp = System.currentTimeMillis();
 	}
 	
 	private boolean isValid = true;
@@ -53,7 +54,7 @@ public class ReservationSession implements IReservationSession {
 	
 	private SessionManager sessionManager;
 	
-	private SessionManager getSessionManager() {
+	public SessionManager getSessionManager() {
 		return this.sessionManager;
 	}
 	
@@ -95,7 +96,7 @@ public class ReservationSession implements IReservationSession {
 	}
 
 	@Override
-	public synchronized void confirmQuotes() throws RemoteException, ReservationException, InvalidSessionException {
+	public synchronized List<Reservation> confirmQuotes() throws RemoteException, ReservationException, InvalidSessionException {
 		if (! this.isValid()) {
 			throw new InvalidSessionException("Session no longer valid");
 		}
@@ -107,6 +108,7 @@ public class ReservationSession implements IReservationSession {
 				reservationList.add(res);
 			}
 			this.getCurrentQuotes().clear();
+			return reservationList;
 		} catch (RemoteException e) {
 			System.err.println("Error doing remote invocation");
 			e.printStackTrace();
@@ -116,11 +118,13 @@ public class ReservationSession implements IReservationSession {
 			for (Reservation reservation : reservationList) {
 				ICarRentalCompany company = this.getSessionManager().lookupCompany(reservation.getRentalCompany());
 				company.cancelReservation(reservation);
+				throw e;
 			}
 			this.getCurrentQuotes().clear();
 		} finally {
 			this.updateTimeStamp();
 		}
+		return reservationList;
 	}
 
 	@Override
@@ -130,7 +134,7 @@ public class ReservationSession implements IReservationSession {
 			throw new InvalidSessionException("Session no longer valid");
 		}
 		List<CarType> types = new ArrayList<CarType>();
-		ICompanyIterator it = this.getSessionManager().getCompanyIterator();
+		ICompanyIterator it = this.getSessionManager().getIterator();
 		ICarRentalCompany company = null;
 		while (it.hasNext()) {
 			company = it.next();
@@ -150,7 +154,7 @@ public class ReservationSession implements IReservationSession {
 			throw new InvalidSessionException("Session no longer valid");
 		}
 		CarType cheapest = null;
-		ICompanyIterator it = this.getSessionManager().getCompanyIterator();
+		ICompanyIterator it = this.getSessionManager().getIterator();
 		ICarRentalCompany company = null;
 		while (it.hasNext()) {
 			company = it.next();

@@ -4,8 +4,10 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 import rental.Quote;
+import rental.Reservation;
 import rental.ReservationException;
 
 public interface IReservationSession extends Remote, Session {
@@ -14,7 +16,7 @@ public interface IReservationSession extends Remote, Session {
 	
 	public Collection<Quote> getCurrentQuotes() throws RemoteException, InvalidSessionException;
 	
-	public void confirmQuotes() throws RemoteException, ReservationException, InvalidSessionException;
+	public List<Reservation> confirmQuotes() throws RemoteException, ReservationException, InvalidSessionException;
 	
 	public void checkAvailableCarTypes(Date start, Date end) throws RemoteException, InvalidSessionException;
 	

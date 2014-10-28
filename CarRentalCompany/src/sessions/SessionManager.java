@@ -1,7 +1,14 @@
 package sessions;
 
+import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+
+import naming.CompanyNotFoundException;
+import naming.ICompanyIterator;
+import rental.ICarRentalCompany;
+import agency.RentalAgency;
 
 /**
  * Is responsible for determining when sessions should be destroyed
@@ -17,16 +24,31 @@ public class SessionManager implements Runnable {
 	 * @param timeOut
 	 * 		In milliseconds. If sessions receive no calls for a period of timeOut, they are destroyed.
 	 */
-	public SessionManager(long timeOut) {
+	public SessionManager(RentalAgency agency, long timeOut) {
 		this.sessionList = new ArrayList<Session>();
 		this.timeOut = timeOut;
+		this.agency = agency;
 	}
 	
 	/**
 	 * Initialises a new session manager with the default timeout of five minutes.
 	 */
-	public SessionManager() {
-		this(5 * 60 * 1000);
+	public SessionManager(RentalAgency agency) {
+		this(agency, 5 * 60 * 1000);
+	}
+	
+	private RentalAgency agency;
+	
+	private RentalAgency getAgency() {
+		return this.agency;
+	}
+	
+	public ICarRentalCompany lookupCompany(String companyName) throws CompanyNotFoundException, RemoteException {
+		return this.getAgency().lookupCompany(companyName);
+	}
+	
+	public ICompanyIterator getIterator() throws RemoteException {
+		return this.getAgency().getIterator();
 	}
 	
 	/**
@@ -69,22 +91,37 @@ public class SessionManager implements Runnable {
 	 * 		The session is question
 	 * @return
 	 * 		True iff the difference between system time and last call on sessions is timeOut
+	 * @throws RemoteException 
 	 */
-	private boolean mustDestroySession(Session session) {
+	private boolean mustDestroySession(Session session) throws RemoteException {
 		return (System.currentTimeMillis() - session.getTimeStamp()) >= this.getTimeOut();
 	}
+	
+	
 	
 	@Override
 	public void run() {
 		while (true) {
-			for (Session session : this.getSessionList()) {
+			Iterator<Session> it = this.getSessionList().iterator();
+			Session session = null;
+			while (it.hasNext()) {
+				session = it.next();
 				synchronized(session) {
-					if (mustDestroySession(session)) {
-						session.destroy();
-						this.getSessionList().remove(session);
+					try {
+						if (mustDestroySession(session)) {
+							try {
+								session.destroy();
+							} catch (RemoteException e) {
+								e.printStackTrace();
+							}
+							it.remove();
+						}
+					} catch (RemoteException e) {
+						e.printStackTrace();
 					}
 				}
 			}
+			System.out.println("Number of sessions in session manager: " + this.getSessionList().size());
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {

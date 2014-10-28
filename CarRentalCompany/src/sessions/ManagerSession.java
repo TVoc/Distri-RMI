@@ -1,6 +1,8 @@
 package sessions;
 
+import naming.CompanyNotFoundException;
 import naming.ICompanyIterator;
+import naming.INamingService;
 import rental.CarType;
 import rental.ICarRentalCompany;
 import utilities.MapHighestFinder;
@@ -9,25 +11,27 @@ import utilities.MapMerger;
 import java.rmi.RemoteException;
 import java.util.*;
 
+import agency.IRentalAgency;
+
 public class ManagerSession implements IManagerSession {
-    public ManagerSession(SessionManager sessionManager, RentalAgency rentalAgency) {
+    public ManagerSession(SessionManager sessionManager, IRentalAgency rentalAgency) {
         this.sessionManager = sessionManager;
         this.rentalAgency = rentalAgency;
     }
 
     @Override
-    public void register(ICarRentalCompany newComp) {
+    public void register(ICarRentalCompany newComp) throws RemoteException {
         this.getRentalAgency().register(newComp);
     }
 
     @Override
-    public void unregister(String name) {
+    public void unregister(String name) throws RemoteException {
         this.getRentalAgency().unregister(name);
     }
 
     @Override
     public List<String> getRegisteredCompanies() throws RemoteException {
-        ICompanyIterator iter = this.getSessionManager().getCompanyIterator();
+        ICompanyIterator iter = this.getSessionManager().getIterator();
 
         List<String> res = new ArrayList<String>();
         ICarRentalCompany temp = null;
@@ -39,13 +43,13 @@ public class ManagerSession implements IManagerSession {
     }
 
     @Override
-    public List<CarType> getAvailableCarTypesIn(String companyName) {
-        return this.getSessionManager().lookupCompany(companyName).getAvailableCarTypes();
+    public List<CarType> getAvailableCarTypesIn(String companyName) throws RemoteException, CompanyNotFoundException {
+        return new ArrayList<CarType>(this.getSessionManager().lookupCompany(companyName).getAllCarTypes());
     }
 
     @Override
     public int getNumberOfReservationsBy(String clientName) throws RemoteException {
-        ICompanyIterator iter = this.getSessionManager().getCompanyIterator();
+        ICompanyIterator iter = this.getSessionManager().getIterator();
         long timestamp = System.currentTimeMillis();
 
         int res = 0;
@@ -85,7 +89,7 @@ public class ManagerSession implements IManagerSession {
      */
     @Override
     public Set<String> getBestClient() throws RemoteException {
-        ICompanyIterator iter = this.getSessionManager().getCompanyIterator();
+        ICompanyIterator iter = this.getSessionManager().getIterator();
         long timestamp = System.currentTimeMillis();
 
         Map<String, Integer> res_raw = new HashMap<String, Integer>();
@@ -119,12 +123,12 @@ public class ManagerSession implements IManagerSession {
     }
 
     @Override
-    public int getNumberOfReservationsForCarType(String carRentalCompanyName, String carType) {
+    public int getNumberOfReservationsForCarType(String carRentalCompanyName, String carType) throws RemoteException, CompanyNotFoundException {
         return this.getSessionManager().lookupCompany(carRentalCompanyName).getNumberOfReservationsFor(carType, System.currentTimeMillis());
     }
 
     @Override
-    public CarType getMostPopularCarTypeIn(String carRentalCompanyName) {
+    public CarType getMostPopularCarTypeIn(String carRentalCompanyName) throws RemoteException, CompanyNotFoundException {
         return this.getSessionManager().lookupCompany(carRentalCompanyName).getMostPopularCarType(System.currentTimeMillis());
     }
 
@@ -135,11 +139,11 @@ public class ManagerSession implements IManagerSession {
 
     private final SessionManager sessionManager;
 
-    public RentalAgency getRentalAgency() {
+    private IRentalAgency getRentalAgency() {
         return this.rentalAgency;
     }
 
-    private final RentalAgency rentalAgency;
+    private final IRentalAgency rentalAgency;
 
     //--------------------------------------------------------------------
     // UNSUPPORTED STUFF

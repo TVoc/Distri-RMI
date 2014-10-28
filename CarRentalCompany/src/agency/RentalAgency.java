@@ -1,54 +1,57 @@
 package agency;
 
+import naming.CompanyNotFoundException;
+import naming.ICompanyIterator;
 import naming.INamingService;
 import rental.ICarRentalCompany;
+import sessions.IManagerSession;
+import sessions.IReservationSession;
+import sessions.ManagerSession;
+import sessions.ReservationSession;
 import sessions.SessionManager;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
 
 /**
  * Mediator Server that serves as access point for both the INamingService of
  * the system, as well as the SessionManager.
  */
-public class RentalAgency implements Remote {
+public class RentalAgency implements IRentalAgency {
     //------------------------------------------------------------------------
     // Constructor
     //------------------------------------------------------------------------
     public RentalAgency() {
-
+    	this.sessionManager = new SessionManager(this);
+    	this.managerSession = new ManagerSession(this.sessionManager, this);
+    	try {
+			this.sessionStub = (IManagerSession) UnicastRemoteObject.exportObject(this.managerSession, 0);
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
+    	Thread thread = new Thread(this.sessionManager);
+    	thread.start();
     }
-
-    //------------------------------------------------------------------------
-    // Naming service
-    //------------------------------------------------------------------------
-    /**
-     * Register a new ICarRentalCompany in the INamingService of this
-     * RentalAgency
-     *
-     * @param newCompany
-     *      The new IRentalCompany to be registered within this RentalAgency.
-     *
-     * @throws RemoteException
-     *     | ICarRentalCompany == null
-     *     | ICarRentalCompany.getName() == null
-     */
-    public void register(ICarRentalCompany newCompany) throws RemoteException {
+    
+	@Override
+	public void register(ICarRentalCompany newCompany) throws RemoteException {
         this.getNamingService().register(newCompany);
     }
 
-    /**
-     * Unregister the ICarRentalCompany with the specified name from
-     * this RentalAgency INamingService.
-     *
-     * @param name
-     *      The name of the ICarRentalCompany to be removed.
-     *
-     * @throws RemoteException
-     *      | name == null
-     */
-    public void unregister(String name) throws RemoteException {
+	@Override
+	public void unregister(String name) throws RemoteException {
         this.getNamingService().unregister(name);
+    }
+    
+	@Override
+	public ICarRentalCompany lookupCompany(String companyName) throws RemoteException, CompanyNotFoundException {
+    	return this.getNamingService().lookupCompany(companyName);
+    }
+    
+	@Override
+	public ICompanyIterator getIterator() throws RemoteException {
+    	return this.getNamingService().iterator();
     }
 
     /**
@@ -59,6 +62,11 @@ public class RentalAgency implements Remote {
     private INamingService getNamingService() {
         return this.namingService;
     }
+    
+	@Override
+	public void registerNamingService(INamingService service) {
+    	this.namingService = service;
+    }
 
     /** The INamingService of this RentalAgency. */
     private INamingService namingService;
@@ -68,4 +76,28 @@ public class RentalAgency implements Remote {
     //---------------------------------------------    ---------------------------
     /** The SessionManager of this RentalAgency */
     private final SessionManager sessionManager;
+    
+    private SessionManager getSessionManager() {
+    	return this.sessionManager;
+    }
+
+	@Override
+	public IReservationSession spawnReservationSession(String clientName)
+			throws RemoteException {
+		IReservationSession session = new ReservationSession(clientName, this.getSessionManager());
+		this.getSessionManager().addSession(session);
+		IReservationSession stub = (IReservationSession) UnicastRemoteObject.exportObject(session, 0);
+		return stub;
+	}
+	
+	 //------------------------------------------------------------------------
+    // ManagerSession
+    //---------------------------------------------    ---------------------------
+	private ManagerSession managerSession;
+	
+	private IManagerSession sessionStub;
+	
+	public IManagerSession getManagerSession() throws RemoteException {
+		return this.sessionStub;
+	}
 }
