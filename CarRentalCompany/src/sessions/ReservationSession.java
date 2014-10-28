@@ -70,7 +70,7 @@ public class ReservationSession implements IReservationSession {
 			throw new InvalidSessionException("Session no longer valid");
 		}
 		try {
-			ICarRentalCompany company = this.getSessionManager().lookup(companyName);
+			ICarRentalCompany company = this.getSessionManager().lookupCompany(companyName);
 			ReservationConstraints constraints = new ReservationConstraints(start, end, carType);
 			this.getCurrentQuotes().add(company.createQuote(constraints, this.getClientName()));
 		} catch (RemoteException e) {
@@ -102,7 +102,7 @@ public class ReservationSession implements IReservationSession {
 		List<Reservation> reservationList = new ArrayList<Reservation>();
 		try {
 			for (Quote quote : this.getQuoteList()) {
-				ICarRentalCompany company = this.getSessionManager().lookup(quote.getRentalCompany());
+				ICarRentalCompany company = this.getSessionManager().lookupCompany(quote.getRentalCompany());
 				Reservation res = company.confirmQuote(quote);
 				reservationList.add(res);
 			}
@@ -114,7 +114,7 @@ public class ReservationSession implements IReservationSession {
 			System.err.println("Error confirming quote");
 			e.printStackTrace();
 			for (Reservation reservation : reservationList) {
-				ICarRentalCompany company = this.getSessionManager().lookup(reservation.getRentalCompany());
+				ICarRentalCompany company = this.getSessionManager().lookupCompany(reservation.getRentalCompany());
 				company.cancelReservation(reservation);
 			}
 			this.getCurrentQuotes().clear();

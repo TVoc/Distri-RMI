@@ -2,6 +2,7 @@ package agency;
 
 import naming.INamingService;
 import rental.ICarRentalCompany;
+import sessions.SessionManager;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;

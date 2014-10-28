@@ -3,8 +3,6 @@ package sessions;
 import java.util.ArrayList;
 import java.util.List;
 
-import agency.RentalAgency;
-
 /**
  * Is responsible for determining when sessions should be destroyed
  * 
