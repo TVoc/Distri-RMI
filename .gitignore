@@ -14,3 +14,9 @@ hs_err_pid*
 #IntelliJ settings
 .idea/
 .settings/
+
+#Report ignore
+Report/*.aux
+Report/*.log
+Report/*.out
+Report/*.gz
