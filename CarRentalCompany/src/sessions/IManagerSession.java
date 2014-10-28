@@ -4,7 +4,9 @@ import rental.CarType;
 import rental.ICarRentalCompany;
 
 import java.rmi.Remote;
+import java.rmi.RemoteException;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by Month on 28/10/2014.
@@ -24,7 +26,7 @@ public interface IManagerSession extends Remote, Session {
      * @postcondition
      *      | ICarRentalCompany.getName() in (new this).getRegisteredCompanies()
      */
-    public void register(ICarRentalCompany newComp);
+    public void register(ICarRentalCompany newComp)  throws RemoteException;
 
     /**
      * Unregister the specified car rental company with the specified name
@@ -36,7 +38,7 @@ public interface IManagerSession extends Remote, Session {
      * @postcondition
      *      | !(name in (new this).getRegisteredCompanies()
      */
-    public void unregister(String name);
+    public void unregister(String name) throws RemoteException;
 
     //------------------------------------------------------------------------
     // Companies
@@ -48,7 +50,7 @@ public interface IManagerSession extends Remote, Session {
      *
      * @return a List containing all the names of the registered companies.
      */
-    public List<String> getRegisteredCompanies();
+    public List<String> getRegisteredCompanies() throws RemoteException;
 
     /**
      * Get A list containing all the CarTypes that are available at the given
@@ -59,7 +61,7 @@ public interface IManagerSession extends Remote, Session {
      *
      * @return a List containing all the CarTypes in the specified ICarRentalCompnany
      */
-    public List<CarType> getAvailableCarTypesIn(String companyName);
+    public List<CarType> getAvailableCarTypesIn(String companyName) throws RemoteException;
 
     //------------------------------------------------------------------------
     // Statistics
@@ -74,7 +76,7 @@ public interface IManagerSession extends Remote, Session {
      *
      * @return The number of reservations by clientName.
      */
-    public int getNumberOfReservationsBy(String clientName);
+    public int getNumberOfReservationsBy(String clientName) throws RemoteException;
 
     /**
      * Get a List containing the names of the best (highest reservations)
@@ -82,7 +84,7 @@ public interface IManagerSession extends Remote, Session {
      *
      * @return the best client in this RentalAgency.
      */
-    public List<String> getBestClient();
+    public Set<String> getBestClient() throws RemoteException;
 
     /**
      * Get the number of reservation in the specified carRentalCompany for
@@ -96,7 +98,7 @@ public interface IManagerSession extends Remote, Session {
      *
      * @return the number of reservations for carType in carRentalCompany.
      */
-    public int getNumberOfReservationsForCarType(String carRentalCompanyName, String carType);
+    public int getNumberOfReservationsForCarType(String carRentalCompanyName, String carType) throws RemoteException;
 
     /**
      * Get the most popular CarType in the specified carRentalCompany.
@@ -106,5 +108,5 @@ public interface IManagerSession extends Remote, Session {
      *
      * @return the most popular CarType.
      */
-    public CarType getMostPopularCarTypeIn(String carRentalCompanyName);
+    public CarType getMostPopularCarTypeIn(String carRentalCompanyName) throws RemoteException;
 }

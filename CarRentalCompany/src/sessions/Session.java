@@ -23,6 +23,6 @@ public interface Session {
 	 */
 	void destroy();
 	
-	
+    SessionManager getSessionManager();
 
 }
